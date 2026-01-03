@@ -4,7 +4,7 @@ import {register,
     verifyOTP, 
     forgotPassword,
     resenCode} from "../controllers/auth.js"
-import {check} from "express-validator"
+import {check} from "express-validator" 
 
 const router=express.Router()
 
