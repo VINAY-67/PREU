@@ -22,7 +22,7 @@ const App = () => (
       <Route path="/admin" element={<AdminDashboard />} />
       <Route element={<Layout />}>
         <Route path="/playground" element={<Playground />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/profile/:profileId" element={<Profile />} />
         <Route path="/communities" element={<Communities />} />
         <Route path="/communities/community" element={<CommunityPage />} />
       </Route>

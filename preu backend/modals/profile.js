@@ -1,18 +1,18 @@
-import mongoose from "mongoose";
-import {ObjectId} from mongoose.Schema
-
+import mongoose, { mongo } from "mongoose";
+import User from "../modals/user.js"
 const profile=new mongoose.Schema({
-    user:{type:ObjectId,ref:User},
-    creator_metrics:{
-        influence:{type:Number,max:999},
-        psaved:{type:Number,max:999},
-        ratings:{type:Number,max:999},
-        communities:{type:Number,max:999}
-    },
-    recent:{
-        type:Array,
-        default:[]
+    user:{type:mongoose.Schema.Types.ObjectId,ref:User},    
+    recent:{type:Array,default:[]},
+    communities_joined :{type:Array,default:[]},
+    communities_created :{type:Array,default:[]},
+    prompt_saved:{type:Array,default:[]},
+    prompt_posted:{type:Array,default:[]},
+    rating:{
+        total_rating:{type:Number,default:0},
+        no_of_prople_rated:{type:Number,default:0},
+        overall_rating:{type:Number,default:0},
+        rated:{type:Number,default:0}   
     }
 })
 
-export default module.exports("Profile",profile);
+export default mongoose.model("Profile",profile);

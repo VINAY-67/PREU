@@ -1,143 +1,130 @@
-import React, { useState } from "react";
-// Using real imports as requested by the user's code structure
-import { Outlet, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import { isAuthenticated } from "../core/auth";
 
-// --- NEUMORPHISM COLOR PALETTE & CONSTANTS (Warm Neutral / Indigo Theme) ---
-// Changed from cool blue to warm neutral for background
-const NEUMO_BG = "bg-neutral-100"; 
-// Changed from blue-100 to pure white for card/navbar surface
-const NEUMO_CARD_BG = "bg-white"; 
-// Changed accent color from blue-700 to indigo-600
-const PRIMARY_ACCENT_TEXT = "text-indigo-600"; 
-// Neumorphic Shadows (Convex/Raised) - adjusted shadow color and intensity for a neutral background
-const PRIMARY_SHADOW = "shadow-[8px_8px_16px_rgba(180,180,180,0.3),-8px_-8px_16px_rgba(255,255,255,1)]";
-// Neumorphic Shadows (Concave/Pressed - used for active/toggled state)
-const PRESSED_SHADOW = "shadow-[inset_3px_3px_5px_rgba(180,180,180,0.4),inset_-3px_-3px_5px_rgba(255,255,255,1)]";
-
-// Neumorphic Nav Button Component (This handles the desktop links)
-const NavButton = ({ children, className = "", ...props }) => {
-    // 1. Setup hover/active states (colors)
-    const baseStyles = `text-gray-600 hover:${PRIMARY_ACCENT_TEXT} transition-all duration-200 font-medium`;
-    
-    // 2. Add Lift/Scale and Relative positioning for the underline
-    // 'group' is necessary to target the underline span inside
-    const interactiveContainerStyles = `relative group transform hover:scale-[1.03] transition-transform duration-200 rounded-lg p-1`; 
-    
-    // 3. Active/Pressed state for color
-    const interactiveStyles = "active:shadow-none active:text-indigo-800 transition-all duration-150";
-
-    return (
-        <button 
-            className={`${interactiveContainerStyles} ${baseStyles} ${interactiveStyles} ${className}`} 
-            {...props}
-        >
-            {children}
-            {/* Animated Underline: 
-                - Centered using left-1/2 and -translate-x-1/2
-                - Initially scaled to 0 width (scale-x-0)
-                - Scales to 100% width on group-hover 
-            */}
-            <span className={`absolute bottom-0 left-1/2 w-[80%] h-0.5 bg-indigo-600 transform -translate-x-1/2 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full`}></span>
-        </button>
-    );
-};
+// Neumorphic Constants refined for Dark/Black context
+const NEUMO_MENU_ITEM = "bg-[#0a0a0a] shadow-[5px_5px_10px_#050505,-5px_-5px_10px_#0f0f0f]";
+const PRIMARY_ACCENT = "bg-indigo-600";
 
 const Layout = () => {
     const [isOpen, setIsOpen] = useState(false);
-    // Uses the actual useNavigate hook
     const navigate = useNavigate();
+    const location = useLocation();
+    const auth = isAuthenticated() || {};
+    const user = auth.user || {};
+
+    useEffect(() => {
+        setIsOpen(false);
+    }, [location]);
 
     const handleLogout = () => {
-        // Keeps the original localStorage logic
         localStorage.removeItem("authToken");
         navigate("/");
+        setIsOpen(false);
     };
 
     const navItems = [
         { name: "Playground", path: "/playground" },
         { name: "Communities", path: "/communities" },
-        { name: "Profile", path: "/profile" },
+        { name: "Profile", path: `/profile/${user?._id}` },
     ];
 
     return (
-        // Main background uses NEUMO_BG
-        <div className={`min-h-screen ${NEUMO_BG} font-sans`}>
-            
-            {/* Navigation Bar: Uses NEUMO_CARD_BG and PRIMARY_SHADOW (Raised) */}
-            <nav className={`${NEUMO_CARD_BG} ${PRIMARY_SHADOW} sticky top-0 z-40 transition-shadow duration-300 rounded-b-3xl`}>
-                <div className="container mx-auto px-6 h-16 flex items-center justify-between">
-                    
-                    {/* Logo Section */}
-                    <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
-                        {/* Styled Neumorphic Logo Placeholder - background changed to indigo-400 */}
-                        {/* <div className="w-8 h-8 rounded-lg bg-indigo-400 flex items-center justify-center font-bold text-white shadow-md">P</div>
-                         */}
-                         <img src="./Preu.png" alt=""  className="h-[35px]"/>
-                        {/* <span className={`font-extrabold text-xl ${PRIMARY_ACCENT_TEXT}`}>PREU</span> */}
-                    </div>
-
-                    {/* Desktop Navigation Links */}
-                    <div className="hidden md:flex items-center gap-8">
-                        {navItems.map(item => (
-                            <NavButton key={item.name} onClick={() => navigate(item.path)}>
-                                {item.name}
-                            </NavButton>
-                        ))}
-                        <NavButton 
-                            onClick={handleLogout} 
-                            // The Logout button needs a slightly different underline color to match its text
-                            className="!text-red-500 hover:!text-red-700"
-                        >
-                            Logout
-                            {/* Adding a custom red underline for Logout button */}
-                            <span className="absolute bottom-0 left-1/2 w-[80%] h-0.5 bg-red-600 transform -translate-x-1/2 scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full"></span>
-                        </NavButton>
-                    </div>
-
-                    {/* Mobile Menu Toggle Button: Applies Neumorphic button style */}
-                    <button 
-                        // ADDED: hover:scale-110 for animation
-                        className={`md:hidden p-2 rounded-full ${NEUMO_BG} ${PRIMARY_SHADOW} transition-all duration-300 active:${PRESSED_SHADOW} text-gray-600 hover:text-indigo-600 hover:scale-110`}
-                        onClick={() => setIsOpen(!isOpen)}
-                    >
-                        {/* Uses the actual Lucide icons */}
-                        {isOpen ? <X size={24} /> : <Menu size={24} />}
-                    </button>
+        <div className="min-h-screen bg-blue-50 font-sans flex flex-col">
+            <header className={`fixed left-0 w-full z-[100] transition-all duration-500 
+                ${isOpen ? "bg-transparent" : "bg-neutral-100/80 backdrop-blur-md"} 
+                ${isOpen ? "top-0" : "bottom-0 md:top-0 md:bottom-auto"} 
+                flex justify-between items-center px-6 py-2 md:px-12`}
+            >
+                {/* Logo Section */}
+                <div 
+                    className={`cursor-pointer transition-all duration-500 transform ${isOpen ? "invert brightness-100 scale-110" : "hover:scale-105"}`} 
+                    onClick={() => navigate("/")}
+                >
+                    <img src="../Preu.png" alt="Logo" className="h-[30px] md:h-[35px]" />
                 </div>
 
-                {/* Mobile Dropdown Menu: Uses NEUMO_CARD_BG and border */}
-                {isOpen && (
-                    <div className={`md:hidden ${NEUMO_CARD_BG} py-2 border-t border-neutral-200 transition-all duration-300`}>
-                        {navItems.map(item => (
-                            <button 
-                                key={item.name}
-                                onClick={() => {
-                                    navigate(item.path);
-                                    setIsOpen(false);
-                                }} 
-                                // ADDED: hover:scale-[1.01] and transform origin
-                                className={`block w-full text-left px-6 py-3 text-gray-600 hover:bg-neutral-100 transition-all duration-150 rounded-lg active:bg-neutral-200 active:${PRESSED_SHADOW} hover:scale-[1.01] transform origin-top-left`}
-                            >
-                                {item.name}
-                            </button>
-                        ))}
-                        <button 
-                            onClick={() => {
-                                handleLogout();
-                                setIsOpen(false);
-                            }} 
-                            // ADDED: hover:scale-[1.01] and transform origin
-                            className={`block w-full text-left px-6 py-3 text-red-500 hover:bg-neutral-100 transition-all duration-150 rounded-lg border-t mt-1 border-neutral-200 active:bg-neutral-200 active:${PRESSED_SHADOW} hover:scale-[1.01] transform origin-top-left`}
+                {/* Neumorphic Toggle Button */}
+                <button 
+                    onClick={() => setIsOpen(!isOpen)}
+                    className={`z-[110] p-2 rounded-2xl md:rounded-full transition-all duration-500 flex items-center gap-2 ${
+                        isOpen 
+                        ? "text-white bg-neutral-900 shadow-[inset_3px_3px_6px_#000,inset_-3px_-3px_6px_#1a1a1a]" 
+                        : "text-black bg-neutral-100 shadow-[4px_4px_8px_#bebebe,-4px_-4px_8px_#ffffff] active:shadow-[inset_2px_2px_5px_#bebebe,inset_-2px_-2px_5px_#ffffff]"
+                    }`}
+                >
+                    <span className="hidden md:inline text-[10px] font-bold uppercase tracking-[0.2em]">
+                        {isOpen ? "Close" : "Menu"}
+                    </span>
+                    {isOpen ? <X size={24} /> : <Menu size={24} />}
+                </button>
+            </header>
+
+            {/* FULL SCREEN OPAQUE OVERLAY (The Agency Soul) */}
+            <div 
+                className={`fixed inset-0 z-[90] bg-[#0a0a0a] transition-all duration-700 ease-[cubic-bezier(0.85,0,0.15,1)] ${
+                    isOpen ? "translate-y-0 opacity-100" : "translate-y-full md:-translate-y-full opacity-0"
+                }`}
+            >
+                <nav className="h-full flex flex-col justify-center overflow-hidden">
+                    {navItems.map((item, index) => (
+                        <div 
+                            key={item.name}
+                            className={`group relative border-b border-white/5 transition-all duration-700 ${
+                                isOpen ? "translate-x-0 opacity-100" : "-translate-x-10 opacity-0"
+                            }`}
+                            style={{ transitionDelay: `${index * 100}ms` }}
                         >
-                            Logout
+                            <button
+                                onClick={() => navigate(item.path)}
+                                className="w-full py-8 md:py-12 px-8 md:px-20 flex items-center justify-between text-left group"
+                            >
+                                <span className="text-white/40 group-hover:text-white text-4xl md:text-7xl lg:text-8xl font-bold uppercase tracking-tighter transition-all duration-500 group-hover:pl-4">
+                                    {item.name}
+                                </span>
+                                
+                                {/* Neumorphic Icon Indicator */}
+                                <div className={`hidden md:flex w-16 h-16 rounded-full items-center justify-center text-white/20 group-hover:text-indigo-500 transition-all duration-500 ${NEUMO_MENU_ITEM}`}>
+                                    <div className="w-2 h-2 rounded-full bg-current animate-pulse" />
+                                </div>
+
+                                {/* Sliding Highlight Underline */}
+                                <div className="absolute bottom-0 left-0 w-full h-[4px] bg-transparent overflow-hidden">
+                                    <div className={`h-full w-full ${PRIMARY_ACCENT} transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 ease-out`} />
+                                </div>
+                            </button>
+                        </div>
+                    ))}
+
+                    {/* Logout Option */}
+                    <div className={`mt-10 px-8 md:px-20 transition-all duration-700 delay-500 ${isOpen ? "opacity-100" : "opacity-0"}`}>
+                        <button 
+                            onClick={handleLogout}
+                            className="text-red-500/50 hover:text-red-500 uppercase tracking-widest text-xs font-bold py-4 px-8 border border-red-500/20 rounded-full hover:border-red-500 transition-all"
+                        >
+                            [ Logout Session ]
                         </button>
                     </div>
-                )}
-            </nav>
+                </nav>
 
-            {/* Content Renders Here - Uses the actual Outlet */}
-            <Outlet />
+                {/* Minimalist Background Lines */}
+                <div className="absolute inset-0 grid grid-cols-4 pointer-events-none opacity-20">
+                    <div className="border-r border-white/[0.03] h-full" />
+                    <div className="border-r border-white/[0.03] h-full" />
+                    <div className="border-r border-white/[0.03] h-full" />
+                </div>
+            </div>
+
+            {/* MAIN CONTENT AREA */}
+            <main className={`flex-grow transition-all duration-700 
+                ${isOpen ? "blur-xl scale-110 opacity-0" : "blur-0 scale-100 opacity-100"}
+                pt-2 pb-2 md:pt-0 md:pb-6`}
+            >
+                <div className="container mx-auto px-6 ">
+                    <Outlet />
+                </div>
+            </main>
         </div>
     );
 };

@@ -1,8 +1,9 @@
 import express from "express"
-import User from "../modals/user"
+import User from "../modals/user.js"
+import Profile from "../modals/profile.js"
 
 export const getUserById=async (req,res,next,id)=>{
-    await User.findById(id)
+    await Profile.findOne({user:id}).populate("user","username tagname")
     .then(user=>{
         req.profile=user;
         next()
@@ -12,24 +13,20 @@ export const getUserById=async (req,res,next,id)=>{
     })})
 }
 
-export const fogetpassword=(req,res)=>{
-    const {newpass , code ,email}=req.body
-    //verify the send code 
+export const getProfileDetails=(req,res)=>{
+    res.json(req.profile)
+}
 
-    //verify the newpass of lenght min 6
-
-    //verify that this works
-    User.findByIdAndUpdate({_id:req.profile._id},{
-        $set:{password:newpass} 
-    })
-    .then(user=>{
-        return res.status(200).json({
-            msg:"updated succesfully"
-        })
-    })
-    .catch(err=>{
+export const updateUsername=async (req,res)=>{
+    const {username}=req.body
+    const user=await User.findOneAndUpdate(req.profile.user._id,{
+        $set:{username:username}
+    },{new:true})
+    if(!user){
         return res.status(400).json({
-            error:"there is an error occured in saving the user"
+            error:"updating user was failed"
         })
-    })
+    }
+    return res.json(user)
+
 }

@@ -9,7 +9,8 @@ const user=new mongoose.Schema({
     salt:{type:String,trim:true},
     otpexpiry:{type:Number},
     otp:{type:Number},
-    isverfied:{type:Boolean,default:false}
+    isverfied:{type:Boolean,default:false},
+    tagname:{type:String,default:""}
 },{timestamps:true})
 
 user.virtual("password")
@@ -21,15 +22,6 @@ user.virtual("password")
 .get(function(){
     return this._password
 })
-
-
-//this is used as a secondary name from the email given 
-user.virtual("tagname")
-.get(function(){
-    return this.email.replace(/@[^\s@]+\.[^\s@]+$/,"")
-})
-
-//need to write the securepass and forget password functinalities
 
 user.method({
     authenticate:function(password){
@@ -46,6 +38,9 @@ user.method({
         }
         
     },
+    tagNameGenerate:function(email){
+        this.tagname=email.replace(/@[^\s@]+\.[^\s@]+$/,"")
+    }
 })
 
 export default mongoose.model("User",user);

@@ -15,32 +15,39 @@ import {
   Send,
   Code,
   ImageIcon,
-  ListOrdered
+  ListOrdered,
+  Copy,
+  Check
 } from "lucide-react";
-
-// --- NEUMORPHISM COLOR PALETTE & CONSTANTS (Pale Sky Blue Theme) ---
 const NEUMO_BG = "bg-blue-50";
 const NEUMO_CARD_BG = "bg-blue-100";
 const PRIMARY_ACCENT_TEXT = "text-blue-700";
 const CTA_GRADIENT = "bg-gradient-to-r from-cyan-500 to-blue-600";
 const CTA_SHADOW = "shadow-xl shadow-cyan-500/30";
 
-// Neumorphic Shadows
 const PRIMARY_SHADOW = "shadow-[6px_6px_12px_rgba(174,174,192,0.4),-6px_-6px_12px_rgba(255,255,255,1)]";
 const PRESSED_SHADOW = "shadow-[inset_3px_3px_5px_rgba(174,174,192,0.4),inset_-3px_-3px_5px_rgba(255,255,255,1)]";
 const INNER_SHADOW = "shadow-[inset_2px_2px_4px_rgba(174,174,192,0.4),inset_-2px_-2px_4px_rgba(255,255,255,1)]";
 
-
-// --- MOCK DATA ---
 const MOCK_COMMUNITIES = {
   "ai_vision": { name: "AI Vision & Image Prompts", description: "Sharing successful text-to-image prompts.", member_count: 14500, icon: ImageIcon },
   "code_gen": { name: "Code Generation Mastery", description: "Prompts for complex application logic and snippets.", member_count: 8200, icon: Code },
 };
 
 const MOCK_PROMPTS = [
-  { id: 1, title: "Epic Cyberpunk Cityscape Prompt", prompt: "A vast, neon-drenched futuristic city at night, rain-slicked streets reflecting bright signs, volumetric lighting, 8k, highly detailed.", author: "PromptGenius", rating: 4.8, comments: 45, bookmarks: 120, tags: ["MidJourney", "Sci-Fi", "Visual"], date: new Date(Date.now() - 3600000) },
-  { id: 2, title: "React Component Hook Generator", prompt: "Generate a custom React hook that handles form validation for email and password inputs, returning state and validation errors.", author: "CodeMaster", rating: 4.5, comments: 22, bookmarks: 80, tags: ["React", "JavaScript", "Code"], date: new Date(Date.now() - 86400000) },
-  { id: 3, title: "Realistic Portrait of an Old Scholar", prompt: "A hyper-realistic digital painting of an elderly man with kind eyes, reading a leather-bound book by soft candlelight. High detail.", author: "VisualArtist", rating: 4.9, comments: 60, bookmarks: 150, tags: ["StableDiffusion", "Portrait", "Realistic"], date: new Date(Date.now() - 172800000) },
+  { id: 1, 
+    title: "Epic Cyberpunk Cityscape Prompt", 
+    prompt: "A vast, neon-drenched futuristic city at night, rain-slicked streets reflecting bright signs, volumetric lighting, 8k, highly detailed.", 
+    author: "PromptGenius", 
+    rating: 4.8, 
+    comments: 45, 
+    bookmarks: 120, 
+    tags: ["MidJourney", "Sci-Fi", "Visual"], 
+    image: "https://image.api.playstation.com/vulcan/ap/rnd/202311/2812/ae84720b553c4ce943e9c342621b60f198beda0dbf533e21.jpg", 
+    date: new Date(Date.now() - 3600000) 
+  },
+  { id: 2, title: "React Component Hook Generator", prompt: "Generate a custom React hook that handles form validation for email and password inputs, returning state and validation errors.", author: "CodeMaster", rating: 4.5, comments: 22, bookmarks: 80, tags: ["React", "JavaScript", "Code"], image: "https://images.unsplash.com/photo-1633356122544-f134324a6cee?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", date: new Date(Date.now() - 86400000) },
+  { id: 3, title: "Realistic Portrait of an Old Scholar", prompt: "A hyper-realistic digital painting of an elderly man with kind eyes, reading a leather-bound book by soft candlelight. High detail.", author: "VisualArtist", rating: 4.9, comments: 60, bookmarks: 150, tags: ["StableDiffusion", "Portrait", "Realistic"], image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", date: new Date(Date.now() - 172800000) },
 ];
 
 const SORT_OPTIONS = [
@@ -111,6 +118,13 @@ const Modal = ({ isOpen, onClose, children, title }) => (
 const PromptPost = ({ prompt }) => {
   const [isBookmarked, setIsBookmarked] = useState(false);
   const [isLiked, setIsLiked] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopyPrompt = () => {
+    navigator.clipboard.writeText(prompt.prompt);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
+  };
 
   const renderStars = (rating) => {
     const fullStars = Math.floor(rating);
@@ -135,11 +149,27 @@ const PromptPost = ({ prompt }) => {
       <div className="flex-grow">
         <h4 className="text-xl font-bold mb-2 text-gray-800 line-clamp-2">{prompt.title}</h4>
         <p className="text-sm font-medium text-gray-500 mb-4">By **{prompt.author}**</p>
-
-        <div className={`p-4 mb-4 rounded-xl text-sm bg-blue-50 ${INNER_SHADOW} text-gray-700 font-mono overflow-auto max-h-32`}>
-          {prompt.prompt}
+        {prompt.image && (
+          <div className="mb-4 w-full h-48 rounded-xl overflow-hidden shadow-sm">
+            <img src={prompt.image} alt={prompt.title} className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className={`p-4 mb-4 rounded-xl text-sm bg-blue-50 ${INNER_SHADOW} text-gray-700 font-mono overflow-auto max-h-32 relative group`}>
+          <div className="flex justify-between items-start">
+            <div className="flex-1 pr-4">{prompt.prompt}</div>
+            <button
+              onClick={handleCopyPrompt}
+              className="flex-shrink-0 p-2 rounded-lg bg-blue-200 hover:bg-blue-300 text-blue-700 transition-colors duration-200 "
+              title="Copy prompt"
+            >
+              {isCopied ? (
+                <Check className="w-4 h-4 text-green-600" />
+              ) : (
+                <Copy className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
-
         <div className="flex flex-wrap gap-2 mb-4">
           {prompt.tags.map((tag) => (
             <span
@@ -198,9 +228,11 @@ const CommunityPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSortModalOpen, setIsSortModalOpen] = useState(false);
   const [sortOption, setSortOption] = useState("latest");
+  const [newPromptTitle, setNewPromptTitle] = useState("");
   const [newPromptText, setNewPromptText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [newPromptTags, setNewPromptTags] = useState(""); // <-- ADD THIS LINE
+  const [newPromptTagInput, setNewPromptTagInput] = useState("");
+  const [newPromptTags, setNewPromptTags] = useState([]);
   const [newPromptImageUrl, setNewPromptImageUrl] = useState("");
 
   useEffect(() => {
@@ -244,42 +276,59 @@ const CommunityPage = () => {
     setIsSortModalOpen(false);
   };
 
+  const handleTagInputChange = (e) => {
+    const value = e.target.value;
+    if (value.includes(',')) {
+      const parts = value.split(',');
+      const newTag = parts[0].trim();
+      if (newTag && newTag.length > 0 && newPromptTags.length < 5) {
+        setNewPromptTags([...newPromptTags, newTag]);
+      }
+      setNewPromptTagInput(parts[parts.length - 1].trim());
+    } else {
+      setNewPromptTagInput(value);
+    }
+  };
+
+  const removeTag = (index) => {
+    setNewPromptTags(newPromptTags.filter((_, i) => i !== index));
+  };
+  
+  const handleTagInputBlur = () => {
+    if (newPromptTagInput.trim() && newPromptTags.length < 5) {
+      if (!newPromptTags.includes(newPromptTagInput.trim())) {
+        setNewPromptTags([...newPromptTags, newPromptTagInput.trim()]);
+      }
+      setNewPromptTagInput("");
+    }
+  };
+
   const handleSubmitPrompt = async (e) => {
     e.preventDefault();
-    if (!newPromptText.trim()) return;
+    if (!newPromptText.trim() || !newPromptTitle.trim()) return;
 
     setIsSubmitting(true);
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const processedTags = newPromptTags
-      .split(',')
-      .map(tag => tag.trim())
-      .filter(tag => tag.length > 0)
-      .slice(0, 5); // Limit to max 5 tags
-
     const newPrompt = {
-      id: Date.now(),
-      // Use the first line or a truncated title from the prompt text
-      title: newPromptText.split('\n')[0].substring(0, 50) + (newPromptText.length > 50 ? '...' : ''),
-      prompt: newPromptText,
-      author: "You",
-      rating: 5.0,
-      comments: 0,
-      bookmarks: 0,
-      // 2. Use processed tags, default to 'New', 'Custom' if none were entered
-      tags: processedTags.length > 0 ? processedTags : ["New", "Custom"],
-      // 3. Add optional image URL
-      imageUrl: newPromptImageUrl.trim() || undefined,
-      date: new Date(),
+      id: Date.now(), // Unique identifier - timestamp used as unique ID for each prompt
+      title: newPromptTitle.trim(), // User-entered title of the prompt (max ~50 chars recommended)
+      prompt: newPromptText, // The full prompt content/text that users will see and use
+      author: "You", // Name of the person who posted the prompt
+      rating: 5.0, // Initial rating (new prompts start at 5.0)
+      comments: 0, // Number of comments on this prompt (starts at 0 for new posts)
+      bookmarks: 0, // Number of times users have bookmarked this prompt (starts at 0)
+      tags: newPromptTags.length > 0 ? newPromptTags : ["New", "Custom"], // Categories/keywords for the prompt
+      image: newPromptImageUrl.trim() || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80", // Using 'image' as per schema
+      date: new Date(), // Timestamp of when the prompt was created
     };
 
     setPrompts(prev => sortPrompts([newPrompt, ...prev], sortOption));
-
-    // 4. Clear all new input fields
+    setNewPromptTitle("");
     setNewPromptText("");
-    setNewPromptTags("");
+    setNewPromptTagInput("");
+    setNewPromptTags([]);
     setNewPromptImageUrl("");
-
     setIsSubmitting(false);
     setIsModalOpen(false);
   };
@@ -302,8 +351,6 @@ const CommunityPage = () => {
     );
   }
 
-  const CommunityIcon = community.icon;
-
   return (
     <div className={`${NEUMO_BG} text-gray-800 min-h-screen font-sans`}>
       <div className="container mx-auto px-4 py-12 md:py-16">
@@ -317,15 +364,6 @@ const CommunityPage = () => {
             className="flex flex-col sm:flex-row items-center justify-between border-b border-blue-200 pb-6"
           >
             <div className="text-center sm:text-left">
-              {/* Back Button integrated into the title area for mobile */}
-              <button
-                onClick={() => navigate('/communities')}
-                className="flex items-center text-lg font-semibold text-blue-500 hover:text-blue-700 transition-colors mb-2 md:hidden"
-              >
-                <ArrowLeft className="w-5 h-5 mr-1" />
-                Back to Communities
-              </button>
-
               <h1 className="text-4xl font-extrabold bg-gradient-to-r from-blue-700 to-cyan-500 bg-clip-text text-transparent">
                 {community.name}
               </h1>
@@ -354,7 +392,13 @@ const CommunityPage = () => {
               </Button>
             </div>
           </motion.div>
-
+              <Button
+                onClick={() => navigate('/communities')}
+                variant="neumoInverse"
+                className="p-3 w-auto h-auto rounded-full shadow-lg md:hidden "
+              >
+                <ArrowLeft className="w-6 h-6" />
+              </Button>
           {/* Controls: Sorting (Adjusted for mobile button) */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -362,6 +406,7 @@ const CommunityPage = () => {
             transition={{ delay: 0.2, duration: 0.4 }}
             className="flex justify-between items-center"
           >
+            
             <h3 className="text-xl font-bold text-gray-800">Community Prompts</h3>
 
             {/* Mobile Sort Button */}
@@ -430,8 +475,24 @@ const CommunityPage = () => {
         onClose={() => { if (!isSubmitting) setIsModalOpen(false); }}
         title={`Share your Prompt `}
       >
-//here we need to come for sending the request after entering the data 
+//here we need to come for sending the request after entering the data
         <form onSubmit={handleSubmitPrompt}>
+          {/* 0. Title Input (NEW FIELD) */}
+          <label htmlFor="prompt-title" className="block text-md font-semibold text-gray-700 mb-2">
+            Prompt Title:
+          </label>
+          <input
+            id="prompt-title"
+            type="text"
+            value={newPromptTitle}
+            onChange={(e) => setNewPromptTitle(e.target.value)}
+            placeholder="e.g., Epic Cyberpunk Cityscape Prompt"
+            maxLength="100"
+            className={`w-full p-3 mb-4 rounded-xl text-gray-700 bg-blue-50 focus:outline-none transition-all duration-200 ${INNER_SHADOW}`}
+            disabled={isSubmitting}
+            required
+          />
+
           {/* 1. Prompt Text Area (Existing) */}
           <label htmlFor="prompt-text" className="block text-md font-semibold text-gray-700 mb-2">
             Paste Your Prompt Here:
@@ -447,23 +508,44 @@ const CommunityPage = () => {
             required
           />
 
-          {/* 2. Tags Input (NEW FIELD) */}
+          {/* 2. Tags Input (Dynamic Tags with YouTube-style UI) */}
           <label htmlFor="prompt-tags" className="block text-md font-semibold text-gray-700 mb-2">
-            Tags (comma-separated):
+            Tags (comma-separated, max 5):
           </label>
-          <input
-            id="prompt-tags"
-            type="text"
-            value={newPromptTags}
-            onChange={(e) => setNewPromptTags(e.target.value)}
-            placeholder="e.g., MidJourney, Sci-Fi, Realistic"
-            className={`w-full p-3 mb-4 rounded-xl text-gray-700 bg-blue-50 focus:outline-none transition-all duration-200 ${INNER_SHADOW}`}
-            disabled={isSubmitting}
-          />
+          <div className={`w-full p-3 mb-4 rounded-xl bg-blue-50 focus:outline-none transition-all duration-200 ${INNER_SHADOW} flex flex-wrap gap-2 items-center`}>
+            {newPromptTags.map((tag, index) => (
+              <motion.div
+                key={index}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                className="flex items-center bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium"
+              >
+                {tag}
+                <button
+                  type="button"
+                  onClick={() => removeTag(index)}
+                  className="ml-2 hover:bg-blue-600 rounded-full p-0.5 transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </motion.div>
+            ))}
+            <input
+              id="prompt-tags"
+              type="text"
+              value={newPromptTagInput}
+              onChange={handleTagInputChange}
+              onBlur={handleTagInputBlur}
+              placeholder={newPromptTags.length >= 5 ? "Max 5 tags reached" : "e.g., MidJourney, Sci-Fi..."}
+              disabled={isSubmitting || newPromptTags.length >= 5}
+              className="flex-1 min-w-[100px] bg-transparent focus:outline-none text-gray-700"
+            />
+          </div>
 
           {/* 3. Image URL Input (NEW FIELD) */}
           <label htmlFor="prompt-image" className="block text-md font-semibold text-gray-700 mb-2">
-             Image (Optional) :
+            Image (Optional) :
           </label>
           <input
             id="prompt-image"
@@ -478,7 +560,7 @@ const CommunityPage = () => {
           <Button
             type="submit"
             className="w-full h-12 font-bold"
-            disabled={isSubmitting || !newPromptText.trim()}
+            disabled={isSubmitting || !newPromptText.trim() || !newPromptTitle.trim()}
           >
             {isSubmitting ? (
               <>

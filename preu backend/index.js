@@ -5,6 +5,9 @@ import bodyParser from "body-parser"
 import cookieParser from 'cookie-parser'
 import cors from "cors"
 import authRoutes from "./routes/auth.js"
+import userRoutes from "./routes/user.js"
+import communityRoutes from "./routes/community.js"
+import requestRoutes from "./routes/request.js"
 
 //my custom routes
 
@@ -20,6 +23,9 @@ app.use(cors())
 
 
 app.use("/api",authRoutes)
+app.use("/api",userRoutes)
+app.use("/api",communityRoutes)
+app.use("/api",requestRoutes)
 
 app.get("/",(req,res)=>{
     res.send("hello vinay")

@@ -41,8 +41,7 @@ export const sendMail = async (email,otp) => {
         }
         await transporter.sendMail(mailOptions);
     } catch (error) {
-        return res.status(400).json({
-            error: error
-        })
+      console.log(error);
+      
     }
 }

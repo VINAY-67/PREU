@@ -261,7 +261,7 @@ const Auth = () => {
                     setPassword("");
                     setUsername("");
                 })
-                navigate("/playground");
+                navigate(`/profile/${data.user._id}`);
             }
         } else {
             setDefaultTab("signin")

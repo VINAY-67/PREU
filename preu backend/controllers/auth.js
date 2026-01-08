@@ -1,5 +1,6 @@
 import express from "express"
-import User from "../modals/user.js" 
+import User from "../modals/user.js"
+import Profile from "../modals/profile.js" 
 import {validationResult} from "express-validator"
 import { expressjwt } from "express-jwt"
 import {sendMail} from "../utils/mails.js"
@@ -17,6 +18,11 @@ export const login=async (req,res)=>{
                 error:"password didnt match"
             })
         }
+        if(!user.isverfied){
+            return res.status(404).json({
+                error:"user is not verified "
+            })
+        }
         const token=jwt.sign({_id:user._id},process.env.SECRET)
         res.cookie("token",token,{maxAge:60000})
         const {_id,username,email,role}=user
@@ -25,6 +31,11 @@ export const login=async (req,res)=>{
             user:{
                 _id,username,email,role
             }
+        })
+    })
+    .catch(err=>{
+        return res.status(400).json({
+            error:"no user was found with this crededntials"
         })
     })
 }
@@ -47,7 +58,11 @@ export const register=async (req,res)=>{
     const user= new User(req.body)
     user.otpexpiry=currentTimeStamp+600
     user.otp=otp
-    user.save()
+    await user.tagNameGenerate(email)
+    await user.save()
+    const profile=await Profile.create({
+        user:user._id
+    })
     await sendMail(email,otp)
     return res.json({
         email:user.email,
@@ -82,6 +97,11 @@ export const forgotPassword=async (req,res)=>{
             error:"no user was found bud have a look at email"
         })
     }
+    if (!user.isverfied) {
+        return res.status(400).json({
+            error:"you haven't even registered !!"
+        })
+    }
     if(!(user.otp===parseInt(otp)) || user.otpexpiry<currentTimeStamp){
         return res.status(400).json({
             error:"otp doesnt matched or expired "
@@ -107,6 +127,8 @@ export const verifyOTP=async (req,res)=>{
             error:"otp expired !!"
         })
     }
+    user.isverfied=true
+    await user.save()
     res.json({
         user:user.email
     })
@@ -117,7 +139,7 @@ export const isSignedIn=expressjwt({
     algorithms:["HS256"]
 })  
 export const isAuthenticated=(req,res,next)=>{
-    const checker=req.profile && req.auth && req.profile._id===req.auth._id
+    const checker=req.profile && req.auth && req.profile.user._id.toString()===req.auth._id
     if (!checker) {
         return res.status(400).json({
             error:"you are not Authenticated "
