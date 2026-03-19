@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion"; // <-- Import Framer Mo
 import {getCommunities} from "../core/community"
 
 // --- NEUMORPHISM COLOR PALETTE & CONSTANTS (Pale Sky Blue Theme) ---
-const NEUMO_BG = "bg-blue-50";
+const NEUMO_BG =  "bg-blue-50";
 const NEUMO_CARD_BG = "bg-blue-100";
 const PRIMARY_ACCENT_TEXT = "text-blue-700";
 const CTA_GRADIENT = "bg-gradient-to-r from-cyan-500 to-blue-600";
@@ -16,7 +16,7 @@ const CTA_SHADOW = "shadow-xl shadow-cyan-500/30";
 const PRIMARY_SHADOW = "shadow-[6px_6px_12px_rgba(174,174,192,0.4),-6px_-6px_12px_rgba(255,255,255,1)]";
 // Neumorphic Shadows (Concave/Pressed - used for active/toggled state)
 const PRESSED_SHADOW = "shadow-[inset_3px_3px_5px_rgba(174,174,192,0.4),inset_-3px_-3px_5px_rgba(255,255,255,1)]";
-
+ 
 
 // --- MOCK DATA ---
 const MOCK_COMMUNITIES = [
