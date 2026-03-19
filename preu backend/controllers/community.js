@@ -17,7 +17,7 @@ export const getCommunityByid=async (req,res,next,id)=>{
     })
 }
 export const getCommunities=async (req,res)=>{
-    return res.json(await Community.find().select("_id name proposal"))
+    return res.json(await Community.find().select("_id name proposal member_count ranking"))
 }
 
 export const registerCommunity=async (req,res)=>{
@@ -30,6 +30,8 @@ export const registerCommunity=async (req,res)=>{
     res.json(community)
 }
 export const joinCommunity=async (req,res)=>{
+    console.log(req.profile.user._id.toString());
+    
     const user=await Profile.findOneAndUpdate({user:req.profile.user._id.toString()},{
         $push:{communities_joined:req.body.name}
     },{new:true})

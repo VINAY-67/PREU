@@ -134,7 +134,7 @@ const App = () => {
       const mockData = {
         username: data.user.username,
         role: data.user.tagname,
-        popularity_score: data.rating.total_rating,
+        popularity_score: data.rating.overall_rating,
         prompts_posted: data.prompt_posted.length,
         prompts_rated: data.rating.rated,
         communities_joined: data.communities_joined.length,
@@ -186,9 +186,7 @@ const App = () => {
     );
   }
 
-  // --- RATING LOGIC FOR "WINNER" STATUS ---
-  // If influence is high (e.g. 5) or they have massive ratings, they "Won" the Elite Status
-  const isWinner = profile.popularity_score >= 5 || profile.prompts_rated > 500;
+  const isWinner = profile.popularity_score >= 5 || profile.prompts_rated > 100;
 
   const stats = [
     { icon: Zap, label: "Influence Rank", value: profile.popularity_score || 0, isGold: profile.popularity_score >= 5 },

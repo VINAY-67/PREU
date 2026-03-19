@@ -15,11 +15,12 @@ const app=express()
 
 mongoose.connect(process.env.DATABASE)
 .then(()=>{console.log("Db Connected ");})
-
+.catch(err=>{console.log(err);
+})
 //middlewares
-app.use(bodyParser.json())
-app.use(cookieParser())
-app.use(cors())
+app.use(bodyParser.json()) 
+app.use(cookieParser()) 
+app.use(cors()) 
 
 
 app.use("/api",authRoutes)

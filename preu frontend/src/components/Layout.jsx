@@ -25,8 +25,8 @@ const Layout = () => {
     };
 
     const navItems = [
-        { name: "Playground", path: "/playground" },
-        { name: "Communities", path: "/communities" },
+        { name: "Playground", path: `/playground/${user?._id}` },
+        { name: "Communities", path: `/communities/${user?._id}` },
         { name: "Profile", path: `/profile/${user?._id}` },
     ];
 

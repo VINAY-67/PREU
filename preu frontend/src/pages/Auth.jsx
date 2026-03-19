@@ -192,7 +192,7 @@ const TabsContent = ({ value, children }) => children;
 const Auth = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(false);
-    const [email, setEmail] = useState("misteranonymous590@gmail.com");
+    const [email, setEmail] = useState("mrhandsomboy998@gmail.com");
     const [password, setPassword] = useState("1234567890");
     const [cpassword, setcPassword] = useState("1234567890");
     const [username, setUsername] = useState("qwerty");
@@ -231,7 +231,6 @@ const Auth = () => {
         }
 
         if (type === 'signup' && isOtpSent) {
-            console.log("otp verification was runned");
             const obj = {
                 email: email,
                 otp: otp

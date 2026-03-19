@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Users, TrendingUp, Plus, Loader2, MessageCircle, Send } from "lucide-react";
 import React from "react";
-import { useNavigate } from "react-router-dom"
+import { useNavigate ,useParams} from "react-router-dom"
 import { motion, AnimatePresence } from "framer-motion"; // <-- Import Framer Motion
+import {getCommunities} from "../core/community"
 
 // --- NEUMORPHISM COLOR PALETTE & CONSTANTS (Pale Sky Blue Theme) ---
 const NEUMO_BG = "bg-blue-50";
@@ -360,7 +361,7 @@ const CommunityItem = ({ community, handleJoin, handleUnjoin, handleView, joinin
 
           <h3 className="text-xl font-bold mb-2 text-gray-800">{community.name}</h3>
           <p className="text-gray-600 text-sm mb-6 line-clamp-3 flex-grow">
-            {community.description || "A dedicated community for sharing high-quality, specialized AI prompts."}
+            {community.proposal|| "A dedicated community for sharing high-quality, specialized AI prompts."}
           </p>
         </div>
 
@@ -417,6 +418,7 @@ const CommunityItem = ({ community, handleJoin, handleUnjoin, handleView, joinin
 
 
 const App = () => {
+  const {userId}=useParams()
   const navigate = useNavigate()
   const [communities, setCommunities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -442,8 +444,8 @@ const App = () => {
     setLoading(true);
     setError("");
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
-      setCommunities(MOCK_COMMUNITIES);
+      const data=await getCommunities(userId)
+      setCommunities(data);
     } catch (err) {
       setError("Failed to load communities.");
     } finally {

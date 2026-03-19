@@ -21,9 +21,9 @@ const App = () => (
       <Route path="/forgot" element={<ForgetPassword />} />
       <Route path="/admin" element={<AdminDashboard />} />
       <Route element={<Layout />}>
-        <Route path="/playground" element={<Playground />} />
+        <Route path="/playground/:userId" element={<Playground />} />
         <Route path="/profile/:profileId" element={<Profile />} />
-        <Route path="/communities" element={<Communities />} />
+        <Route path="/communities/:userId" element={<Communities />} />
         <Route path="/communities/community" element={<CommunityPage />} />
       </Route>
       <Route path="*" element={<NotFound />} />
